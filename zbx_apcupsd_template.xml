@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2021-11-27T10:09:59Z</date>
+    <groups>
+        <group>
+            <name>Apcupsd</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>apcupsd</template>
+            <name>Template Apcupsd</name>
+            <groups>
+                <group>
+                    <name>Apcupsd</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Apcupsd</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>All Information</name>
+                    <key>apcupsd.all</key>
+                    <history>0</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Apcupsd</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Battery charge level</name>
+                    <type>DEPENDENT</type>
+                    <key>apcupsd.bcharge</key>
+                    <delay>0</delay>
+                    <history>3d</history>
+                    <units>%</units>
+                    <description>Bcharge: Battery charge level (PERCENT)</description>
+                    <applications>
+                        <application>
+                            <name>Apcupsd</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>REGEX</type>
+                            <params>BCHARGE.*\: (.*) Percent
+\1</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>apcupsd.all</key>
+                    </master_item>
+                </item>
+                <item>
+                    <name>Driver</name>
+                    <type>DEPENDENT</type>
+                    <key>apcupsd.driver</key>
+                    <delay>0</delay>
+                    <history>1h</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Apcupsd</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>REGEX</type>
+                            <params>DRIVER.*\: (.*)
+\1</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>apcupsd.all</key>
+                    </master_item>
+                </item>
+                <item>
+                    <name>Line Voltage</name>
+                    <type>DEPENDENT</type>
+                    <key>apcupsd.linevolt</key>
+                    <delay>0</delay>
+                    <history>7d</history>
+                    <trends>0</trends>
+                    <value_type>FLOAT</value_type>
+                    <units>Volt</units>
+                    <applications>
+                        <application>
+                            <name>Apcupsd</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>REGEX</type>
+                            <params>LINEV.*\: (.*) Volts
+\1</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>apcupsd.all</key>
+                    </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&gt;({$APCUPSD.LINEV.REF} + {$APCUPSD.LINEV.DELTA.HIGH})</expression>
+                            <name>UPS Line voltage too high</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&lt;({$APCUPSD.LINEV.REF} - {$APCUPSD.LINEV.DELTA.LOW})</expression>
+                            <name>UPS Line voltage too low</name>
+                            <priority>WARNING</priority>
+                            <dependencies>
+                                <dependency>
+                                    <name>UPS Power failure</name>
+                                    <expression>{apcupsd:apcupsd.status.regexp(ONBATT)}=1</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Output power load</name>
+                    <type>DEPENDENT</type>
+                    <key>apcupsd.loadpct</key>
+                    <delay>0</delay>
+                    <history>3d</history>
+                    <units>%</units>
+                    <description>LOADPCT: Output power load of the UPS (PERCENT)</description>
+                    <applications>
+                        <application>
+                            <name>Apcupsd</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>REGEX</type>
+                            <params>LOADPCT.*\: (.*) Percent
+\1</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>apcupsd.all</key>
+                    </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&gt;{$APCUPSD.CRIT.LOAD}</expression>
+                            <name>UPS output load is higher than {$APCUPSD.CRIT.LOAD} %</name>
+                            <priority>HIGH</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&gt;{$APCUPSD.WARN.LOAD}</expression>
+                            <name>UPS output load is higher than {$APCUPSD.WARN.LOAD} %</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Model</name>
+                    <type>DEPENDENT</type>
+                    <key>apcupsd.model</key>
+                    <delay>0</delay>
+                    <history>1h</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Apcupsd</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>REGEX</type>
+                            <params>MODEL.*\: (.*)
+\1</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>apcupsd.all</key>
+                    </master_item>
+                </item>
+                <item>
+                    <name>Serial Number</name>
+                    <type>DEPENDENT</type>
+                    <key>apcupsd.serialno</key>
+                    <delay>0</delay>
+                    <history>1h</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Apcupsd</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>REGEX</type>
+                            <params>SERIALNO.*\: (.*)
+\1</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>apcupsd.all</key>
+                    </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{diff()}=1</expression>
+                            <recovery_mode>NONE</recovery_mode>
+                            <name>UPS Serial number changed</name>
+                            <priority>INFO</priority>
+                            <type>MULTIPLE</type>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Status</name>
+                    <type>DEPENDENT</type>
+                    <key>apcupsd.status</key>
+                    <delay>0</delay>
+                    <history>30d</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Apcupsd</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>REGEX</type>
+                            <params>STATUS.*\: (.*)
+\1</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>apcupsd.all</key>
+                    </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{regexp(COMMLOST)}=1</expression>
+                            <name>UPS Connection lost</name>
+                            <priority>WARNING</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                        <trigger>
+                            <expression>{regexp(ONBATT)}=1</expression>
+                            <name>UPS Power failure</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Battery runtime left</name>
+                    <type>DEPENDENT</type>
+                    <key>apcupsd.timeleft</key>
+                    <delay>0</delay>
+                    <history>3d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>m</units>
+                    <description>TIMELEFT: Max battery runtime (MINUTES) on power failure</description>
+                    <applications>
+                        <application>
+                            <name>Apcupsd</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>REGEX</type>
+                            <params>TIMELEFT.*\: (.*) Minutes
+\1</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>apcupsd.all</key>
+                    </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&lt;{$APCUPSD.CRIT.MIN_TIME_LEFT}</expression>
+                            <name>UPS battery runtime left is below {$APCUPSD.CRIT.MIN_TIME_LEFT} minutes</name>
+                            <priority>HIGH</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&lt;{$APCUPSD.WARN.MIN_TIME_LEFT}</expression>
+                            <name>UPS battery runtime left is below {$APCUPSD.WARN.MIN_TIME_LEFT} minutes</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+            </items>
+            <macros>
+                <macro>
+                    <macro>{$APCUPSD.CRIT.LOAD}</macro>
+                    <value>90</value>
+                </macro>
+                <macro>
+                    <macro>{$APCUPSD.CRIT.MIN_TIME_LEFT}</macro>
+                    <value>10</value>
+                </macro>
+                <macro>
+                    <macro>{$APCUPSD.LINEV.DELTA.HIGH}</macro>
+                    <value>10</value>
+                </macro>
+                <macro>
+                    <macro>{$APCUPSD.LINEV.DELTA.LOW}</macro>
+                    <value>5</value>
+                </macro>
+                <macro>
+                    <macro>{$APCUPSD.LINEV.REF}</macro>
+                    <value>230</value>
+                </macro>
+                <macro>
+                    <macro>{$APCUPSD.WARN.LOAD}</macro>
+                    <value>70</value>
+                </macro>
+                <macro>
+                    <macro>{$APCUPSD.WARN.MIN_TIME_LEFT}</macro>
+                    <value>30</value>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+</zabbix_export>
